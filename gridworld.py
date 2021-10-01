@@ -93,7 +93,6 @@ class Gridworld:
         randomVal = random.random()
         movement = (0,0)
         
-        print(action)
         
         # since randomVal in range [0,1), thus when it less than pe, we treat it as success
         if randomVal < (1-pe):
@@ -104,9 +103,7 @@ class Gridworld:
             randomNum = random.randint(1,4)
             action = (action+randomNum)%5
             movement = self.actionSpace[action]
-        print(action)
-        print("==============")
-    
+ 
         # then check after movement, is the new postion valid
         # if valid, move the robot to the new postion, else let the robot NoMove
         newPos = (self.robotPos[0] + movement[0], self.robotPos[1] + movement[1])
