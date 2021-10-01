@@ -2,8 +2,6 @@
 # It should define the Action, State, Transition probability, and the Observation.
 # More details about the formulas of above concept will show in there functions
 
-
-from hashlib import new
 import random
 
 
@@ -25,7 +23,7 @@ class Gridworld:
         # '0' means a obstacle grid
         # 'i' means a ice cream
         # 'r' means robot itself
-        
+        print(pe)
 
         self.pe = pe
         self.robotPos = robot_pos
@@ -103,8 +101,9 @@ class Gridworld:
         else:
             # if failed, movement pick a direction from 4 alternative directions
             randomNum = random.randint(1,4)
-            movement = self.actionSpace[(action+randomNum)%5]
-    
+            action = (action+randomNum)%5
+            movement = self.actionSpace[action]
+ 
         # then check after movement, is the new postion valid
         # if valid, move the robot to the new postion, else let the robot NoMove
         newPos = (self.robotPos[0] + movement[0], self.robotPos[1] + movement[1])
@@ -113,18 +112,16 @@ class Gridworld:
         if  newPos[0] < 0   or  newPos[0] >= self.cNum  or \
             newPos[1] < 0   or  newPos[1] >= self.rNum:
             # if out of the boundary, NoMove return the previous postion
-            return self.robotPos
+            return self.robotPos, 0
 
         # then check is it move into an obstacle
         for e in self.obstacles:
             if e[0] == newPos[0] and e[1] == newPos[1]:
                 # if moved into a obstacle, NoMove return the previous postion
-                return self.robotPos
+                return self.robotPos, 0
         
         # Reach here means, the new postion is valid.
         # Then update the new postion and return
         self.preRobotPos = self.robotPos
         self.robotPos = newPos
-        return self.robotPos
-    
-    
+        return self.robotPos, action
