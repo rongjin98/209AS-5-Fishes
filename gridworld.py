@@ -34,9 +34,8 @@ class GridWorld:
         
         # assgin block
         for i,j in block:
-            for z in range(numActions):
-                print(z)
-                grid[z, i,j] = 0
+            for actionState in range(numActions):
+                grid[actionState, j, i] = 0
         
         return grid
     
@@ -52,12 +51,10 @@ class GridWorld:
         print("NotImplemented")
     
     
-    
+"""
+testing GridWorld
+"""   
 if __name__ == "__main__":
-    """
-    testing GridWorld
-    """
-    
     grid = GridWorld()
     print(grid.probability)
     
