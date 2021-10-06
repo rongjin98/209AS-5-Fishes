@@ -6,7 +6,7 @@ class GridWorld:
         self.pe = .25
         self.numActions = 5
         self.gridSize = 5
-        self.block = ((1,1), (2,1), (1,3), (2,3))
+        self.block = np.array([(1,1), (2,1), (1,3), (2,3)])
         self.target = np.array([(2,0), (2,2)])
         self.position = np.array([2,4])
         
@@ -17,7 +17,12 @@ class GridWorld:
 
     @property
     def createState(self):
-        NotImplemented
+        state_list = []
+        for i in range(self.gridSize):
+            for j in range(self.gridSize):
+                temp_state = [i,j]
+                state_list.append(temp_state)
+        return np.array(state_list)
     
     @property
     def createProbability(self, state):
@@ -40,9 +45,16 @@ class GridWorld:
 
         return np.array(prob) / sum(prob)
     
+    
     @property
     def createAction(self):
-        NotImplemented
+        forward = [-1, 0]
+        backward = [1, 0]
+        left = [0 ,-1]
+        right = [0 ,1]
+        stay= [0,0]
+
+        return np.array([forward, backward, left, right, stay])
         
     @property
     def createObservation(self):
@@ -66,6 +78,5 @@ testing GridWorld
 """   
 if __name__ == "__main__":
     grid = GridWorld()
-    print(grid.probability)
+    print(grid.state)
     #print(grid.observation)
-    
