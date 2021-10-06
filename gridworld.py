@@ -20,26 +20,25 @@ class GridWorld:
         NotImplemented
     
     @property
-    def createProbability(self):
+    def createProbability(self, state):
         '''
         direction:
         1 2 3 4 5
         left right up down stay
         '''
-        gridSize = self.gridSize
-        numActions = self.numActions
-        actionProb = 1 / numActions
-        block = self.block
+        actionSpace = None
+        blockSpace = None
+        stateSpace = None
         
-        # initialize grid
-        grid = np.array([[[actionProb for _ in range(numActions)] for _ in range(gridSize)] for _ in range(gridSize)])
-        
-        # assgin block
-        for i,j in block:
-            for actionState in range(numActions):
-                grid[actionState, j, i] = 0
-        
-        return grid
+        prob = []
+        for action in actionSpace:
+            nextState = state + action
+            if nextState in stateSpace and nextState not in blockSpace:
+                prob.append(.2)
+            else:
+                prob.append(0)
+
+        return np.array(prob) / sum(prob)
     
     @property
     def createAction(self):
@@ -67,6 +66,6 @@ testing GridWorld
 """   
 if __name__ == "__main__":
     grid = GridWorld()
-    #print(grid.probability)
-    print(grid.observation)
+    print(grid.probability)
+    #print(grid.observation)
     
