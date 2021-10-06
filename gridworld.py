@@ -7,6 +7,8 @@ class GridWorld:
         self.numActions = 5
         self.gridSize = 5
         self.block = ((1,1), (2,1), (1,3), (2,3))
+        self.target = np.array([(2,0), (2,2)])
+        self.position = np.array([2,4])
         
         self.state = self.createState
         self.action = self.createAction
@@ -45,7 +47,16 @@ class GridWorld:
         
     @property
     def createObservation(self):
-        NotImplemented
+        position = self.position
+        RS, RD = self.target
+        distance2RS = np.linalg.norm(position - RS)
+        distance2RD = np.linalg.norm(position - RD)
+        h = 2 / (1 / distance2RS + 1 / distance2RD)
+        
+        if np.random.rand() < np.ceil(h) - h:
+            return np.floor(h)
+        else:
+            return np.ceil(h)
     
     def todo(self, *args, **kwargs):
         print("NotImplemented")
@@ -56,5 +67,6 @@ testing GridWorld
 """   
 if __name__ == "__main__":
     grid = GridWorld()
-    print(grid.probability)
+    #print(grid.probability)
+    print(grid.observation)
     
