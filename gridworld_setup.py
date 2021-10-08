@@ -1,9 +1,18 @@
+#This file is only used for setting up Gridworld problem
+#It includes: states for gridworld,
+#             defined actions
+#             a specific function of calculating the oberservation
+#             and other properties for Gridworld only
+#             transition probability is calculated in simulator.py
+     
 import numpy as np
+import random
 
+from numpy.lib.function_base import append
 
 class GridWorld:
     def __init__(self):
-        self.pe = .25
+        self.wind = .25 #pe
         self.numActions = 5
         self.gridSize = 5
         self.block = np.array([(1,1), (1,2), (3,1), (3,2)])
@@ -12,7 +21,8 @@ class GridWorld:
         
         self.state = self.createState
         self.action = self.createAction
-        self.probability = self.createProbability
+        self.prob_ss= self.pr_ss_s
+        self.prob_action = self.action_probability
         self.observation = self.createObservation
 
     @property
@@ -25,49 +35,36 @@ class GridWorld:
         return np.array(state_list)
     
     @property
-    def createProbability(self):
-        '''
-        direction:
-        1 2 3 4 5
-        left right up down stay
-        '''
-        actionSpace = self.action
-        blockSpace = self.block
+    def pr_ss_s(self): #probability of successor state given current state (25*25)
+        prob_ss = []
+
         stateSpace = self.state
-        
-        
-        prob = []
-        #the probability space should be in size of Ns^2*Na(25^2*5), yet for this particular gridworld
-        #since the robot is only allowed to move for 1 step each time, Ns*Na is enough
-        #It can be extended to (25^2*5) if necessary in the simulator
-        for states in stateSpace: 
-            transition_pr = []
-            if_block = (blockSpace == states).all(1).any()
-            #assume equally possibilities of selecting an action within available action set
-            #count for how many available actions at one specific state
-            for actions in actionSpace: #action [up,down,left,right,stay]
-                nextState = np.array(states+actions)
-                if if_block == True:
-                    transition_pr.append(0)
-                    #if the robot is in block state which is impossible, 
-                    #all of its transition possibilities are zero
-                elif if_block == False:
-                    if_in_boundary = (stateSpace == nextState).all(1).any()
-                    if_in_block = (blockSpace == nextState).all(1).any()
-                    if if_in_boundary == True and if_in_block == False:
-                        transition_pr.append(1)
+        blockSpace = self.block
+
+        for curr_state in stateSpace:
+            temp_pr = []
+            if_block1 = (blockSpace == curr_state).all(1).any()
+            for succ_state in stateSpace:
+                if if_block1 == True:
+                    temp_pr.append(0)
+                else:
+                    if_block2 = (blockSpace == succ_state).all(1).any()
+                    dist = np.linalg.norm(succ_state-curr_state)
+                    if if_block2 == False and dist <= 1: #its impossible to move for more than one unit dist
+                        temp_pr.append(1)
                     else:
-                        transition_pr.append(0)
-            if(if_block == True):
-                prob.append(transition_pr)
-            else:
-                pr = 1.0/sum(transition_pr)#equal possibilities for every available actions
-                for i in range(len(transition_pr)):
-                    if(transition_pr[i] == 1):
-                        transition_pr[i] = pr
-                prob.append(transition_pr)
-        return np.array(prob)
+                        temp_pr.append(0)
+            temp_pr = np.array(temp_pr)
+            if sum(temp_pr)!= 0:
+                temp_pr = temp_pr/sum(temp_pr)
+            prob_ss.append(temp_pr)
+        return np.array(prob_ss)
     
+    @property
+    def action_probability(self): #only used as a weight for generating the transition probability
+        prob_action = (1 - self.wind) + self.wind/4 
+        #the overall probability of executing one action is same for every action in the Action set
+        return prob_action
     
     @property
     def createAction(self):
@@ -76,9 +73,9 @@ class GridWorld:
         left = [0 ,-1]
         right = [0 ,1]
         stay= [0,0]
-
         return np.array([forward, backward, left, right, stay])
-        
+    
+    
     @property
     def createObservation(self):
         position = self.position
@@ -91,19 +88,16 @@ class GridWorld:
             return np.floor(h)
         else:
             return np.ceil(h)
-    
-    def todo(self, *args, **kwargs):
-        print(probability)
-        print("NotImplemented")
+
     
     
-"""
-testing GridWorld
-"""   
-if __name__ == "__main__":
-    grid = GridWorld()
-   #print(grid.state)
-    #for i in range(len(grid.probability)):
-        #print(grid.probability[i], grid.state[i])
-    print(grid.probability)
-    #print(grid.observation)
+# """
+# testing GridWorld
+# """   
+# if __name__ == "__main__":
+#     grid = GridWorld()
+    #print(grid.prob_ss)
+#     #for i in range(len(grid.probability)):
+#         #print(grid.probability[i], grid.state[i])
+#     print(grid.probability)
+#     #print(grid.observation)
