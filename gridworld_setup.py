@@ -88,6 +88,7 @@ class GridWorld:
                 if(available_actions != 0):
                     if_desired_exist = (stateSpace == desired_nextState).all(1).any()
                     if if_desired_exist == True:
+                        available_actions -= 1 #refer to example 3
                         for i in range(len(stateSpace)): #find the index of desired_nextState in the [25*1] array
                             if np.array_equal(desired_nextState,stateSpace[i]):
                                 empty_copy[index][i] = 1-wind
@@ -99,10 +100,7 @@ class GridWorld:
                     rest_available_state = np.where(avail_ss[index] == 1)
                     for rest_index in rest_available_state[0]:
                         if empty_copy[index][rest_index] == 0:
-                            if(if_desired_exist == True):
-                                empty_copy[index][rest_index] = wind/(available_actions-1) #refer example 2
-                            if(if_desired_exist == False):
-                                empty_copy[index][rest_index] = wind/available_actions
+                            empty_copy[index][rest_index] = wind/available_actions
                 index += 1
             tran_pr.append(empty_copy)
         return np.array(tran_pr)
