@@ -41,7 +41,7 @@ class GridWorld:
         return np.array(state_list)
     
     @property
-    #construct a 25*25 matrix display all the availabale successor state given current state
+    #construct a 25*25 matrix display all the availabale successor states given the current state
     def get_available_successor_state(self):
         avail_ss= []
 
@@ -65,7 +65,7 @@ class GridWorld:
         return np.array(avail_ss)
     
     @property
-    def create_transition_probability(self): #Used as a weight for generating the transition probability
+    def create_transition_probability(self): #Create Transition Probability Matrix 5*25*25
         tran_pr = []
         for action_ in actionSpace:
             '''
@@ -74,8 +74,11 @@ class GridWorld:
                    eg1. Given "Forward" action, if only forward is not possible, p(stay) = (1-pe + pe/4)
                    eg2. Given "Forward" action, if both forward and backward is not possible, p(stay) = (1-pe + pe/3)
                    eg3. Given "Forward" action, if both left and right is not possible, p(stay) = pe/2
+
             The function -- 'get_available_successor_state' is used to give the number of available actions and indexing
             its corresponding state
+
+            Action Set Index --- [forward, backward, left, right, stay]
             '''
             index = 0
             empty_copy = np.zeros((25,25))
