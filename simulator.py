@@ -46,14 +46,14 @@ class Simulator:
                 max_prob = np.amax(prob_given_action_state)
                 max_index = np.argmax(prob_given_action_state)
                 if random.random() < max_prob:
-                    print("The action picked is:" + self.get_action_name(action_index)) #TBD
+                    print("The action picked is: " + self.get_action_name(action_index)) #TBD
                     print("The action is executed correctly")
                     print("The new state is now: ", self.statespace[max_index])
                     return self.statespace[max_index]
                 else:
                     successor_when_error = np.delete(np.argwhere(prob_given_action_state > 0),max_index)
                     roll_a_dice = np.random.choice(successor_when_error)
-                    print("The action picked is:" + self.get_action_name(action_index)) #TBD
+                    print("The action picked is: " + self.get_action_name(action_index)) #TBD
                     print("Note: The action is not executed correctly!")
                     print("The new state is now: ", self.statespace[roll_a_dice])
                     return self.statespace[roll_a_dice]
