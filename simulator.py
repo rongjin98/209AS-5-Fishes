@@ -14,6 +14,25 @@ class Simulator:
 
         self.new_state = self.update_state
 
+    #删了，只是让print out的结果看得更清楚
+    #ignore this function, need to be deleted 
+    def get_action_name(self,index):
+        if index == 0: 
+            action_name = "Up"
+        elif index == 1:
+            action_name = "Down"
+        elif index == 2:
+            action_name = "left"
+        elif index == 3:
+            action_name = "right"
+        elif index == 4:
+            action_name = "stay"
+        
+        return action_name
+
+
+
+
     #后期应该会是，两个inputs： 1.current state 2.action
     @property
     def update_state(self):
@@ -27,14 +46,16 @@ class Simulator:
                 max_prob = np.amax(prob_given_action_state)
                 max_index = np.argmax(prob_given_action_state)
                 if random.random() < max_prob:
-                    print("The action picked is:", action_index)
+                    print(action_index)
+                    print(type(action_index))
+                    print("The action picked is:" + self.get_action_name(action_index)) #TBD
                     print("The action is executed correctly")
                     print("The new state is now: ", self.statespace[max_index])
                     return self.statespace[max_index]
                 else:
                     successor_when_error = np.delete(np.argwhere(prob_given_action_state > 0),max_index)
                     roll_a_dice = np.random.choice(successor_when_error)
-                    print("The action picked is:", action_index)
+                    print("The action picked is:" + self.get_action_name(action_index)) #TBD
                     print("Note: The action is not executed correctly!")
                     print("The new state is now: ", self.statespace[roll_a_dice])
                     return self.statespace[roll_a_dice]
