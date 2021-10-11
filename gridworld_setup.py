@@ -7,10 +7,12 @@ from numpy.lib.function_base import append
 
 class GridWorld:
     def __init__(self):
+        #之后的property都可以变成constructor的input 或是文件
         self.wind = .25 #pe
         self.numActions = 5
         self.gridSize = 5
         self.blockSpace = np.array([(1,1), (1,2), (3,1), (3,2)])
+        self.wall = np.array([[0,4],[1,4],[2,4],[3,4],[4,4]])
         self.target = np.array([(4,2), (2,2)])
         self.current_position = np.array([0,2])
         
@@ -58,7 +60,7 @@ class GridWorld:
         tran_pr = []
         for action_ in self.actionSpace:
             '''
-            Default policy: 
+            Default rule: 
             if the selected action is not available, the probaility of executing that action correctly is assigned to "Stay".
                    eg1. Given "Forward" action, if only forward is not possible, p(stay) = (1-pe + pe/4)
                    eg2. Given "Forward" action, if both forward and backward are not possible, p(stay) = (1-pe + pe/3)
@@ -119,6 +121,8 @@ class GridWorld:
             return np.floor(h)
         else:
             return np.ceil(h)
+    
+    
 
 
 
