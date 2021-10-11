@@ -1,30 +1,47 @@
 import numpy as np
 import random
 
-'''
-[forward, backward, left, right, stay]
-'''
+
 class Simulator:
-    def __init__(self, MDP, cur_state):
-        global action_prob
-        global current_state
-        global statespace
-        global actionset
-        global wind
-        global observ
+    def __init__(self, MDP):
 
-        statespace = MDP.state
-        actionset = MDP.action
-        wind = MDP.wind
-        observ = MDP.observation
-        action_prob = MDP.prob_action
-        current_state = cur_state
+        self.statespace = MDP.stateSpace
+        self.actionset = MDP.actionSpace
+        self.wind = MDP.wind
+        self.observ = MDP.observation
+        self.current_state = MDP.current_position
+        self.transit_prob = MDP.transition_probability
 
-        self.successor_state_given_state = MDP.prob_ss
-        self.transit_prob = self.transistion_probability
+        self.new_state = self.update_state
 
-    def pick_action(self):
-        #when no policy involved
-        i = random.randint(0,4)
-        return actionset[i]
+    #后期应该会是，两个inputs： 1.current state 2.action
+    @property
+    def update_state(self):
+        action_index = random.randint(0,4)#改,目前只是让它跑起来，action之后得由policy决定
+        prob_given_action = self.transit_prob[action_index] #25*25
+        for i in range(len(self.statespace)):
+            #current state should never be in block state in theory
+            #current state should always within the statespace in theory
+            if np.array_equal(self.current_state, self.statespace[i]):
+                prob_given_action_state = prob_given_action[i] #1*25
+                max_prob = np.amax(prob_given_action_state)
+                max_index = np.argmax(prob_given_action_state)
+                if random.random() < max_prob:
+                    print("The action picked is:", action_index)
+                    print("The action is executed correctly")
+                    print("The new state is now: ", self.statespace[max_index])
+                    return self.statespace[max_index]
+                else:
+                    successor_when_error = np.delete(np.argwhere(prob_given_action_state > 0),max_index)
+                    roll_a_dice = np.random.choice(successor_when_error)
+                    print("The action picked is:", action_index)
+                    print("Note: The action is not executed correctly!")
+                    print("The new state is now: ", self.statespace[roll_a_dice])
+                    return self.statespace[roll_a_dice]
+        return self.current_state #just in case, if current_state is out of edge
+
+                    
+
+
+
 
