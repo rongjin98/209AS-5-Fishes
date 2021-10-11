@@ -46,8 +46,6 @@ class Simulator:
                 max_prob = np.amax(prob_given_action_state)
                 max_index = np.argmax(prob_given_action_state)
                 if random.random() < max_prob:
-                    print(action_index)
-                    print(type(action_index))
                     print("The action picked is:" + self.get_action_name(action_index)) #TBD
                     print("The action is executed correctly")
                     print("The new state is now: ", self.statespace[max_index])
