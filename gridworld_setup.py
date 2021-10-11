@@ -76,13 +76,14 @@ class GridWorld:
                 available_actions = np.sum(self.avail_ss[index]) #get the number of available actions
                 if(available_actions != 0):#not in block
                     if_desired_exist = (self.stateSpace == desired_nextState).all(1).any()
-                    if if_desired_exist == True:
+                    if_desired_in_block = (self.blockSpace == desired_nextState).all(1).any()
+                    if if_desired_in_block == False and if_desired_exist == True :
                         available_actions -= 1 #refer to eg3
                         for i in range(len(self.stateSpace)): #find the index of desired_nextState in the [25*1] array
                             if np.array_equal(desired_nextState,self.stateSpace[i]):
                                 empty_copy[index][i] = 1-self.wind
                                 break
-                    elif if_desired_exist == False:
+                    elif if_desired_in_block == True or if_desired_exist == False:
                         for j in range(len(self.stateSpace)):
                             #When desired_nextState of the action is not available, choose to stay, refer to eg1
                             if np.array_equal(state_, self.stateSpace[j]): 
@@ -128,7 +129,8 @@ class GridWorld:
 # if __name__ == "__main__":
 #     grid = GridWorld()
 #     # print(grid.transition_probability.shape)
-#     print(grid.transition_probability[4][0])
+#     #print(grid.avail_ss)
+#     print(grid.transition_probability[1][3])
 
 #     #for i in range(len(grid.probability)):
 #         #print(grid.probability[i], grid.state[i])
