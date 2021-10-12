@@ -1,11 +1,22 @@
 from gridworld_setup import GridWorld
 import numpy as np
+import random
 
 grid = GridWorld() #tbd
 
 '''
 pe, Rd, Rs, Rw, discount, Time Horizon
 '''
+#just a helper function for plotting
+def draw_square(array):
+    print("--------------------------")
+    for i in range(grid.gridSize):
+        sth = []
+        for j in range(grid.gridSize):
+            sth.append(array[5*i+j])
+        print(sth)
+    print("--------------------------")
+    return None
 
 def reward_function(Rd, Rs, Rw): 
     reward_map = []
@@ -21,7 +32,7 @@ def reward_function(Rd, Rs, Rw):
             else:
                 reward_map.append(Rd)
         elif if_block == True:
-            reward_map.append(-99) #not important, wont consider block in calculation
+            reward_map.append(-99) #trivial value, wont consider block in calculation since transition probability is always 0
         else:
             reward_map.append(0)
     return reward_map
@@ -46,29 +57,22 @@ def value_function_iteration(discount, reward, H, threshold):
                 v_s_i = np.sum(np.multiply(transit_prob_given_action_state,reward))
                 +np.sum(np.multiply(transit_prob_given_action_state,np.multiply(v_i,discount)))
 
-                v_s_i = round(v_s_i,2)
+                v_s_i = round(v_s_i,3)
 
                 v_temp.append(v_s_i)
             #update v_previous and v_i
             v_previous[state_index] = v_i[state_index]
             v_i[state_index] = np.amax(v_temp)
         
-        print("--------------------------------")
-        for j in range(grid.gridSize):
-            sth = []
-            for k in range(grid.gridSize):
-                sth.append(v_i[5*j+k])
-            print(sth)
+        #Just for printing the value matrix
+        draw_square(v_i)
+        
+        #Add threshold stopping condition
         if np.linalg.norm(v_i - v_previous) <= threshold:
             print(np.linalg.norm(v_i - v_previous))
             print(i)
             return v_i
     return v_i
-
-# def policy_function_iteration(reward_map, policy):
-
-#     return NotImplementedError
-
 
 if __name__ == "__main__":
     reward = reward_function(1, 10, -1)
