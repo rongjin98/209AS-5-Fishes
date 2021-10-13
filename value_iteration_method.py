@@ -39,41 +39,41 @@ def reward_function(Rd, Rs, Rw):
 
 
 def value_function_iteration(discount, reward, H, threshold):
-    #v_i = np.zeros(len(grid.stateSpace)) #initial value at time-step = 0
-    v_previous = np.zeros(len(grid.stateSpace)) #value at time-step = 0
-    v_i = reward #value at time-step = 1
+    v_previous = np.random.rand(len(grid.stateSpace)) #initial value at time-step = 0
+    v_i = np.zeros(len(grid.stateSpace)) #value at time-step = 0x
     for i in range(H):
         for state_index in range(len(grid.stateSpace)):
             '''
             we need to calculate value function for each state
             '''
-            v_temp = []
+            v_temp_set = []
             for action_index in range(len(grid.actionSpace)):
                 '''
                 loop through the whole actionspace to find the action to maximize value function
                 '''
                 transit_prob_given_action_state = grid.transition_probability[action_index][state_index]
-
-                v_s_i = np.sum(np.multiply(transit_prob_given_action_state,reward))
-                +np.sum(np.multiply(transit_prob_given_action_state,np.multiply(v_i,discount)))
-
-                v_s_i = round(v_s_i,3)
-
-                v_temp.append(v_s_i)
+                index = 0
+                v_temp = 0
+                for value in transit_prob_given_action_state:
+                    if value > 0:
+                        v_temp += value*((reward[index])+discount*v_i[index])
+                    index += 1
+                v_temp_set.append(round(v_temp,4))
             #update v_previous and v_i
             v_previous[state_index] = v_i[state_index]
-            v_i[state_index] = np.amax(v_temp)
+            v_i[state_index] = np.amax(v_temp_set)
         
         #Just for printing the value matrix
+        print(np.linalg.norm(v_i - v_previous))
+        print(i)
         draw_square(v_i)
         
         #Add threshold stopping condition
         if np.linalg.norm(v_i - v_previous) <= threshold:
-            print(np.linalg.norm(v_i - v_previous))
-            print(i)
+            draw_square(v_i)
             return v_i
     return v_i
 
 if __name__ == "__main__":
     reward = reward_function(1, 10, -1)
-    value_function = value_function_iteration(0.9,reward,100, 5)
+    value_function = value_function_iteration(0.8,reward,100, 0.01)
