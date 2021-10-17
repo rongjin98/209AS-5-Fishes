@@ -80,43 +80,52 @@ def setup_random_policy(availble_actions):
 
 
 def policy_function_iteration(discount, reward, H):
-    '''
-    Policy Evaluation:
-        for each state, use policy to give an action
-            for that action, calculate its corresponding v-value
-    
-    Policy Refinement:
-        policy can be improved, by find the action that will maximize the q-value 
-    '''
     available_action_set = get_available_actions()
     previous_policy = setup_random_policy(available_action_set)
     initial_policy = setup_random_policy(available_action_set)
 
-    v_i  = np.zeros(len(grid.stateSpace))
+    v_evaluate  = np.zeros(len(grid.stateSpace))
     epoch = 0
 
-    while np.array_equal(previous_policy,initial_policy) == False and epoch < H:
+    while np.array_equal(previous_policy,initial_policy) == False and  epoch < H:
+        new_policy = []
+        #policy evaluation:
         for state_index in range(len(grid.stateSpace)):
-            q_temp_set = []
-            for action_index in available_action_set[state_index]:
-                transit_prob_given_action_state = grid.transition_probability[action_index][state_index]
-                index = 0
+            transit_prob_given_action_state = grid.transition_probability[initial_policy[state_index]][state_index]
+            policy_evaluation = 0
+            index1 = 0
+            for value in transit_prob_given_action_state:
+                if value > 0:
+                    policy_evaluation += value*((reward[index1])+discount*v_evaluate[index1])
+                index1 += 1
+            v_evaluate[state_index] = policy_evaluation
+        
+        #policy refinement:
+        for state_index2 in range(len(grid.stateSpace)):
+            q_max = -999
+            action_max = -999
+            for action_index in available_action_set[state_index2]:
+                transit_prob_given_action_state2 = grid.transition_probability[action_index][state_index2]
+
+                index2 = 0
                 q_temp = 0
-                for value in transit_prob_given_action_state:
+                
+                for value in transit_prob_given_action_state2:
                     if value > 0:
-                        q_temp += value*((reward[index])+discount*v_i[index])
-                    index += 1
-                q_temp_set.append(round(q_temp,4))
-            q_max_index = np.argmax(q_temp_set)
-            policy_at_that_state = available_action_set[state_index][q_max_index]
-            v_i[state_index] = np.amax(q_temp_set)
+                        q_temp += value*((reward[index2])+discount*v_evaluate[index2])
+                    index2 += 1
+
+                if q_temp > q_max:
+                    q_max = q_temp
+                    action_max = action_index
 
             #update policy
-            previous_policy[state_index] = initial_policy[state_index]
-            initial_policy[state_index] = policy_at_that_state
+            new_policy.append(action_max)
+        previous_policy = initial_policy
+        initial_policy = new_policy
 
         epoch +=1
-        draw_square(v_i)
+        draw_square(v_evaluate)
         draw_square(draw_action(initial_policy))
         print(epoch)    
     return initial_policy
@@ -124,7 +133,7 @@ def policy_function_iteration(discount, reward, H):
 
 if __name__ == "__main__":
     available_action = get_available_actions()
-    reward = reward_function(9,10,-10)
-    initial_p = policy_function_iteration(0.8,reward,100)
+    reward = reward_function(8,10,-10)
+    initial_p = policy_function_iteration(0.8,reward,20)
     draw_square(draw_action(initial_p))
 
