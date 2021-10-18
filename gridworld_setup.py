@@ -6,15 +6,15 @@ import random
 from numpy.lib.function_base import append
 
 class GridWorld:
-    def __init__(self):
-        #之后的property都可以变成constructor的input 或是文件
+    def __init__(self,current_position):
         self.wind = .25 #pe
         self.numActions = 5
         self.gridSize = 5
         self.blockSpace = np.array([(1,1), (1,2), (3,1), (3,2)])
         self.wall = np.array([[0,4],[1,4],[2,4],[3,4],[4,4]])
         self.target = np.array([(4,2), (2,2)])
-        self.current_position = np.array([0,2])
+        self.current_position = np.array(current_position)
+        self.reward = np.array([1, 10, -1]) #Rd, Rs, Rw
         
         self.stateSpace = self.createState
         self.actionSpace = self.createAction
@@ -115,28 +115,60 @@ class GridWorld:
         RS, RD = self.target
         distance2RS = np.linalg.norm(position - RS)
         distance2RD = np.linalg.norm(position - RD)
-        h = 2 / (1 / distance2RS + 1 / distance2RD)
+        if distance2RD == 0 or distance2RS == 0:
+            return 0
+        else:
+            h = 2 / (1 / distance2RS + 1 / distance2RD)
         
         if np.random.rand() < np.ceil(h) - h:
             return np.floor(h)
         else:
             return np.ceil(h)
+
+    def reward_function(self):
+        Rd = self.reward[0]
+        Rs = self.reward[1]
+        Rw = self.reward[2]
+
+        reward_map = []
+        index = 0
+        for state_ in self.stateSpace:
+            if_wall = (self.wall == state_).all(1).any()
+            if_block = (self.blockSpace == state_).all(1).any()
+            if_target = (self.target == state_).all(1).any()
+            if if_wall == True:
+                reward_map.append(Rw)
+            elif if_target == True:
+                if np.array_equal(state_,self.target[0]):
+                    reward_map.append(Rs)
+                else:
+                    reward_map.append(Rd)
+            elif if_block == True:
+                reward_map.append(-99) #trivial value, wont consider block in calculation since transition probability is always 0
+            else:
+                reward_map.append(0)
+            index += 1
+        return np.array(reward_map)
+
+    def get_available_actions(self):
+        available_action_each_state = []
+        for state_ in self.stateSpace:
+            available_action_at_state = []
+            if_block_state = (self.blockSpace == state_).all(1).any()
+            if if_block_state == True:
+                available_action_each_state.append([4]) #stay
+            else:
+                for action_index in range(len(self.actionSpace)):
+                    next_state = state_ + self.actionSpace[action_index]
+                    if_in_block = (self.blockSpace == next_state).all(1).any()
+                    if_in_bound = (self.stateSpace == next_state).all(1).any()
+                    if if_in_block == False and if_in_bound == True:
+                        available_action_at_state.append(action_index)
+                available_action_each_state.append(available_action_at_state)
+        return np.array(available_action_each_state)
     
-    
-
-
-
-
-    
-    
-
-# if __name__ == "__main__":
-#     grid = GridWorld()
-#     # print(grid.transition_probability.shape)
-#     #print(grid.avail_ss)
-#     print(grid.transition_probability[1][3])
-
-#     #for i in range(len(grid.probability)):
-#         #print(grid.probability[i], grid.state[i])
-#     print(grid.probability)
-#     #print(grid.observation)
+    def get_current_state_index(self):
+        for index in range(len(self.stateSpace)):
+            if np.array_equal(self.current_position,self.stateSpace[index]):
+                return index
+        return -99
