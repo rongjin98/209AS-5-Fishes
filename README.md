@@ -1,2 +1,2 @@
 
-Run main to get the full simulation results
+Run main to get the full simulation result

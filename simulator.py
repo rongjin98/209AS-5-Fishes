@@ -11,9 +11,6 @@ class Simulator:
         self.observ = MDP.observation
         self.current_state = MDP.current_position
         self.transit_prob = MDP.transition_probability
-
-    #删了，只是让print out的结果看得更清楚
-    #ignore this function, need to be deleted 
     
 
 
@@ -32,7 +29,7 @@ class Simulator:
                     return self.statespace[max_index]
                 else:
                     successor_when_error = np.delete(np.argwhere(prob_given_action_state > 0),np.argwhere(max_index))
-                    roll_a_dice = np.random.choice(successor_when_error) #这个有点hardcode，剩余的各个states的probabili可能是不相同的
+                    roll_a_dice = np.random.choice(successor_when_error) #mark
                     word_descriptions(False,self.statespace,action_index,roll_a_dice)
                     return self.statespace[roll_a_dice]
         return self.current_state #just in case, if current_state is out of edge
