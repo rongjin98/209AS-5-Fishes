@@ -3,10 +3,20 @@ def draw_square(array,gridSize):
     for i in range(gridSize):
         sth = []
         for j in range(gridSize):
-            sth.append(array[5*i+j])
+            sth.append(array[gridSize*i+j])
         print(sth)
     print("--------------------------")
     return None
+
+def make_square(array,gridSize):
+    square_matrix = []
+    for i in range(gridSize):
+        sth = []
+        for j in range(gridSize):
+            sth.append(array[gridSize*i+j])
+        square_matrix.append(sth)
+    return square_matrix
+
 
 def draw_action(array):
     symbol_array = []
