@@ -14,7 +14,7 @@ class GridWorld:
         self.wall = np.array([[0,4],[1,4],[2,4],[3,4],[4,4]])
         self.target = np.array([(4,2), (2,2)])
         self.current_position = np.array(current_position)
-        self.reward = np.array([1, 10, -1]) #Rd, Rs, Rw
+        self.reward = np.array([10, 10, -1]) #Rd, Rs, Rw
         
         self.stateSpace = self.createState
         self.actionSpace = self.createAction
