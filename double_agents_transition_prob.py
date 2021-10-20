@@ -18,13 +18,17 @@ class two_agents_world:
         self.blockSpace = MDP.blockSpace
         self.actionSet = MDP.actionSpace
         self.stateSet = MDP.stateSpace
+        self.target = MDP.target
+        self.wall = MDP.wall
         self.agent_one_position = np.array(pos1)
         self.agent_two_position = np.array(pos2)
         self.wind = MDP.wind
+        self.reward = MDP.reward
 
         self.two_actionSpace = self.createAction #25
         self.two_stateSpace = self.createSpace #625
         self.transition_probability = self.createTransition #25*625*625
+        self.reward_map = self.createReward #625
 
     @property
     def createAction(self):
@@ -43,6 +47,7 @@ class two_agents_world:
                 temp = [i,j]
                 stateSpace.append(temp)
         return np.array(stateSpace)
+
 
     #The Probability Transition Matrix has the size of 25*625*625 (25*25^2*25^2)
     @property
@@ -63,8 +68,8 @@ class two_agents_world:
                     current_state_agent_1 = position_state[i][j][0]
                     current_state_agent_2 = position_state[i][j][1]
 
-                    if_in_block_1 = (self.blockSpace == current_state_agent_1).all(1).any(0)
-                    if_in_block_2 = (self.blockSpace == current_state_agent_2).all(1).any(0)
+                    if_in_block_1 = (self.blockSpace == current_state_agent_1).all(1).any()
+                    if_in_block_2 = (self.blockSpace == current_state_agent_2).all(1).any()
 
                     if if_in_block_1 == False and if_in_block_2 == False: #if one of the agent is in block, the whole probabiity is zero
                         transition_at_agent1, transition_at_agent2 = two_agents_world.get_transition_each_agent_state_action(current_state_agent_1,
@@ -81,6 +86,53 @@ class two_agents_world:
             transit_prob.append(temp_layer_1)
         return np.array(transit_prob)
     
+
+    @property
+    def createReward(self):
+        Rd = self.reward[0]
+        Rs = self.reward[1]
+        Rw = self.reward[2]
+
+        reward_map = []
+        index = 0
+        for state_ in self.two_stateSpace:
+            agent1_ = two_agents_world.index_to_position(state_[0],self.gridSize)
+            agent2_ = two_agents_world.index_to_position(state_[1],self.gridSize)
+            if_wall_1 = (self.wall == agent1_).all(1).any()
+            if_block_1 = (self.blockSpace == agent1_).all(1).any()
+            if_target_1 = (self.target == agent1_).all(1).any()
+
+            if_wall_2 = (self.wall == agent2_).all(1).any()
+            if_block_2 = (self.blockSpace == agent2_).all(1).any()
+            if_target_2 = (self.target == agent2_).all(1).any()
+
+            sum = 0 #reward of one state of two agents is the cumulative reward of each agent
+            if if_block_1 == True or if_block_2 == True:
+                sum = -99
+                #value should not affect the calculation since the transition probability of any agent in blockstate is 0
+            else:
+                if if_target_1 == True:
+                    if np.array_equal(agent1_,self.target[0]):
+                        sum += Rs
+                    else:
+                        sum += Rd
+                
+                if if_target_2 == True:
+                    if np.array_equal(agent2_,self.target[0]):
+                        sum += Rs
+                    else:
+                        sum += Rd
+                
+                if if_wall_1 == True:
+                    sum += Rw
+                
+                if if_wall_2 == True:
+                    sum += Rw
+
+            reward_map.append(sum)
+        return np.array(reward_map)
+    
+
     #create two transition probabilities of 25*1 arrays for agent1 and agent2 
     def get_transition_each_agent_state_action(current_state_1, current_state_2, action_agent1, action_agent2, stateSet, actionSet, blockSet, wind, gridSize): #helper function1 for createTransition()
         ss_mark_1, ss_mark_2 = two_agents_world.get_ss_each_agent(current_state_1,current_state_2,stateSet,blockSet) # 2 25*1 array
@@ -97,8 +149,8 @@ class two_agents_world:
         transit_p1 = np.zeros(len(ss_mark_1))
         transit_p2 = np.zeros(len(ss_mark_2))
 
-        if_action_available_1 = (available_action_agent_1 == action_agent1).all(1).any(0)
-        if_action_available_2 = (available_action_agent_2 == action_agent2).all(1).any(0)
+        if_action_available_1 = (available_action_agent_1 == action_agent1).all(1).any()
+        if_action_available_2 = (available_action_agent_2 == action_agent2).all(1).any()
 
 
         if if_action_available_1 == True:
@@ -130,7 +182,7 @@ class two_agents_world:
 
         return transit_p1, transit_p2
 
-    def get_available_action(action, current_state, stateSet, actionSet, blockSet): #helper function2 for createTransition()
+    def get_available_action(action, current_state, stateSet, actionSet, blockSet): #helper function2 
         #get the available action from the given actionset at particular current state
         available_action_at_state = []
         if_block = (blockSet == current_state).all(1).any(0)
@@ -139,19 +191,19 @@ class two_agents_world:
         else:
             for action_ in actionSet:
                 next_state = current_state + action_
-                if_in_block = (blockSet == next_state).all(1).any(0)
-                if_in_bound = (stateSet == next_state).all(1).any(0)
+                if_in_block = (blockSet == next_state).all(1).any()
+                if_in_bound = (stateSet == next_state).all(1).any()
                 if if_in_block == False and if_in_bound == True:
                     available_action_at_state.append(action_)
         return available_action_at_state
     
 
-    def get_ss_each_agent(current_state_1, current_state_2, stateSet, blockSet): #helper function for createSS()
+    def get_ss_each_agent(current_state_1, current_state_2, stateSet, blockSet): #helper function3
         current_state_1 = np.array(current_state_1)
         current_state_2 = np.array(current_state_2)
 
-        if_block1 = (blockSet == current_state_1).all(1).any(0)
-        if_block2 = (blockSet == current_state_2).all(1).any(0)
+        if_block1 = (blockSet == current_state_1).all(1).any()
+        if_block2 = (blockSet == current_state_2).all(1).any()
 
         ss_1 = []
         ss_2 = []
@@ -159,7 +211,7 @@ class two_agents_world:
             if if_block1 == True:
                 ss_1.append(0)
             else:
-                if_block3 = (blockSet == state_).all(1).any(0)
+                if_block3 = (blockSet == state_).all(1).any()
                 dist1 = np.linalg.norm(current_state_1 - state_)
                 if if_block3 == False and dist1 <= 1:
                     ss_1.append(1)
@@ -169,7 +221,7 @@ class two_agents_world:
             if if_block2 == True:
                 ss_2.append(0)
             else:
-                if_block4 = (blockSet == state_).all(1).any(0)
+                if_block4 = (blockSet == state_).all(1).any()
                 dist2 = np.linalg.norm(current_state_2 -  state_)
                 if if_block4 == False and dist2 <= 1:
                     ss_2.append(1)
@@ -179,7 +231,7 @@ class two_agents_world:
         return np.array(ss_1),np.array(ss_2)
 
 
-    def get_non_zero_index(input_array): #helper function for createSS()
+    def get_non_zero_index(input_array): #helper function4 
         index_array = []
         for i in range(len(input_array)):
             if input_array[i] != 0:
@@ -188,17 +240,17 @@ class two_agents_world:
         return np.array(index_array)
 
     
-    def index_to_position(index,gridSize):
+    def index_to_position(index,gridSize): #helper function5
         first_pos = math.floor(index/gridSize)
         second_pos = index % gridSize
         pos = [first_pos, second_pos]
         return np.array(pos)
     
-    def position_to_index(position,gridSize):
+    def position_to_index(position,gridSize): #helper function6
         index = position[0]*gridSize + position[1]
         return index
     
-    def index_matrix_to_position_matrix(index_matrix,gridSize):
+    def index_matrix_to_position_matrix(index_matrix,gridSize): #helper function7
         position_matrix = []
         for index_array in index_matrix:
             temp = []
@@ -223,6 +275,9 @@ if __name__ == "__main__":
 
     print(two_agent_grid.transition_probability.shape)
     print(two_agent_grid.transition_probability[3][4][23])
+
+    print(two_agent_grid.reward_map.shape)
+    print(two_agent_grid.reward_map)
 
     
 
@@ -283,10 +338,3 @@ if __name__ == "__main__":
     # print(two_agent_grid.transition_probability.shape)
     # print(two_agent_grid.transition_probability[1][0][0]) #transition probability given "foward" action, given agent1 and agent2 both at [0 0]
     
-    
-    '''
-    pos_state --- pos_state[0] --> fix agent1
-              --- pos_state[x][0] --> fix agent2
-              --- pos_state[x][y][0] --> agent1
-              --- pos_state[x][y][1] --> agent2
-    '''
