@@ -25,7 +25,7 @@ class two_agents_world:
         self.two_actionSpace = self.createAction #25
         self.two_stateSpace = self.createSpace #625
         #self.successor_state_given_state = self.createSS #625*625
-        #self.transition_probability = self.createTransition #25*625*625
+        self.transition_probability = self.createTransition #25*625*625
 
     @property
     def createAction(self):
@@ -111,13 +111,8 @@ class two_agents_world:
                     Refer to createSS() for structural interpretation
                     '''
                     for index_1 in index_trsit_1:
-                        temp_layer_3[i][index_1] = 1
-                        temp_layer_3[i][index_1] = temp_layer_3[i][index_1]*transition_at_agent1[index_1]
-                    
-                    for index_2 in index_trsit_2:
-                        if temp_layer_3[index_2][j] == 0:
-                            temp_layer_3[index_2][j] = 1
-                        temp_layer_3[index_2][j] = temp_layer_3[index_2][j]*transition_at_agent2[index_2]
+                        for index_2 in index_trsit_2:
+                            temp_layer_3[index_1][index_2] = transition_at_agent1[index_1]*transition_at_agent2[index_2]
                     
                     temp_layer_2.append(temp_layer_3)
                 temp_layer_1.append(temp_layer_2)
@@ -268,6 +263,8 @@ if __name__ == "__main__":
     two_agent_grid = two_agents_world(grid,[0,2],[0,3])
     end = time.time()
 
+    print(two_agent_grid.transition_probability[0][0][0])
+
 #     print("It took ", end - start, " seconds to complete the initialization")
     # ss_1,ss_2 = two_agents_world.get_ss_each_agent([4,4],[0,0],grid.stateSpace,grid.blockSpace)
     # draw_square(ss_1,5)
@@ -276,38 +273,43 @@ if __name__ == "__main__":
     # index1 = two_agents_world.get_non_zero_index(ss_1)
     # index2 = two_agents_world.get_non_zero_index(ss_2)
     #draw_square(two_agent_grid.two_actionSpace,two_agent_grid.gridSize)
-    transit_p1,transit_p2 = two_agents_world.get_transition_each_agent_state_action([4,1],[2,1],np.array([0,1]),np.array([0,-1]),grid.stateSpace, grid.actionSpace, grid.blockSpace, grid.wind, grid.gridSize)
-    # draw_square(transit_p1,5)
-    # draw_square(transit_p2,5)
-    transit_p2 = transit_p2.reshape((25,1))
-    transit_p1 = transit_p1.reshape((25,1))
-    transit_p2 = np.transpose(transit_p2)
+    
+    # transit_p1,transit_p2 = two_agents_world.get_transition_each_agent_state_action([0,0],[4,1],np.array([0,1]),np.array([0,1]),grid.stateSpace, grid.actionSpace, grid.blockSpace, grid.wind, grid.gridSize)
+    # print(two_agents_world.get_non_zero_index(transit_p1))
+    # print(two_agents_world.get_non_zero_index(transit_p2))
+    # print(np.sum(transit_p1)+np.sum(transit_p2))
 
-    transit_total = transit_p1 @ transit_p2
-    print(transit_total.shape)
-    # draw_square(transit_total[0],5)
-    # draw_square(transit_total[1],5)
-    # draw_square(transit_total[5],5)
 
-    reward_map1 = grid.reward_function()
-    reward_map1 = reward_map1.reshape((25,1))
+    # transit_p2 = transit_p2.reshape((25,1))
+    # transit_p1 = transit_p1.reshape((25,1))
+    # transit_p2 = np.transpose(transit_p2)
 
-    reward_map2 = grid.reward_function()
-    reward_map2 = reward_map2.reshape((25,1))
-    reward_map2 = np.transpose(reward_map2)
-    print(reward_map2.shape)
+    # transit_total = transit_p1 @ transit_p2
+    # print(np.sum(transit_total))
 
-    reward_total = reward_map1 @ reward_map2
+    # print(transit_total.shape)
 
-    transit_total = transit_total.flatten()
-    reward_total = reward_total.flatten()
-    transit_total = transit_total.reshape((625,1))
-    reward_total = reward_total.reshape((625,1))
-    transit_total = np.transpose(transit_total)
+    # reward_map1 = grid.reward_function()
+    # reward_map1 = reward_map1.reshape((25,1))
 
-    value = transit_total @ reward_total
-    value = value.flatten()
-    print(value)
+    # reward_map2 = grid.reward_function()
+    # reward_map2 = reward_map2.reshape((25,1))
+    # reward_map2 = np.transpose(reward_map2)
+    # print(reward_map2.shape)
+
+    # reward_total = reward_map1 @ reward_map2
+
+    # transit_total = transit_total.flatten()
+    # reward_total = reward_total.flatten()
+    # transit_total = transit_total.reshape((625,1))
+    # reward_total = reward_total.reshape((625,1))
+    # transit_total = np.transpose(transit_total)
+
+    # value = transit_total @ reward_total
+    # value = value.flatten()
+    # print(value)
+
+
     # draw_square(transit_p1,5)
     # draw_square(transit_p2,5)
     # draw_square(two_agent_grid.two_stateSpace,two_agent_grid.agents_gridSize)
