@@ -24,7 +24,6 @@ class two_agents_world:
 
         self.two_actionSpace = self.createAction #25
         self.two_stateSpace = self.createSpace #625
-        #self.successor_state_given_state = self.createSS #625*625
         self.transition_probability = self.createTransition #25*625*625
 
     @property
@@ -44,43 +43,6 @@ class two_agents_world:
                 temp = [i,j]
                 stateSpace.append(temp)
         return np.array(stateSpace)
-    
-    #This property can be ignored, createSS returns a 625*625/(25*25*25*25) matrix, represents the available successor states for each current state 
-    # it is kept here for the structural reference of a transition probability matrix
-    @property
-    def createSS(self):
-        ss_given_state =[]
-        for i in range(self.agents_gridSize):
-            temp = []
-            for j in range(self.agents_gridSize):
-                temp2 = np.zeros([self.agents_gridSize, self.agents_gridSize])
-                position_state = two_agents_world.index_matrix_to_position_matrix(self.two_stateSpace,self.gridSize) #change the expression of statespace
-                position_state = np.array(make_square(position_state,self.agents_gridSize)) #reshape the statespace from 625 to 25*25
-                state_agent_1 = position_state[i][j][0]
-                state_agent_2 = position_state[i][j][1]
-                ss_1,ss_2 = two_agents_world.get_ss_each_agent(state_agent_1,state_agent_2,self.stateSet,self.blockSpace)
-                index_ss1 = two_agents_world.get_non_zero_index(ss_1) #get non-zero entry inside the successor state array
-                index_ss2 = two_agents_world.get_non_zero_index(ss_2) 
-                '''
-                Map the two 25*1 array to an 25*25 array, row is for agent1, column is for agent 2
-
-                Thus index would be:
-                  1. Agent1 -- temp[i][index_1]
-                  2. Agent2 -- temp[index2][i]
-                Mark the posiitons above as 1
-                
-                Note: There exists the condition which two agents can reach the same position. We need to mark such postion as 2,
-                for transition probability calculation
-                '''
-                for index_1 in index_ss1:
-                    temp2[i][index_1] += 1
-                
-                for index_2 in index_ss2:
-                    temp2[index_2][j] += 1
-                temp.append(temp2)
-            ss_given_state.append(temp)
-        return np.array(ss_given_state)
-    
 
     #The Probability Transition Matrix has the size of 25*625*625 (25*25^2*25^2)
     @property
@@ -101,20 +63,20 @@ class two_agents_world:
                     current_state_agent_1 = position_state[i][j][0]
                     current_state_agent_2 = position_state[i][j][1]
 
-                    transition_at_agent1, transition_at_agent2 = two_agents_world.get_transition_each_agent_state_action(current_state_agent_1,
-                    current_state_agent_2, action_agent1, action_agent2, self.stateSet, self.actionSet, self.blockSpace, self.wind, self.gridSize)
+                    if_in_block_1 = (self.blockSpace == current_state_agent_1).all(1).any(0)
+                    if_in_block_2 = (self.blockSpace == current_state_agent_2).all(1).any(0)
 
-                    index_trsit_1 = two_agents_world.get_non_zero_index(transition_at_agent1)
-                    index_trsit_2 = two_agents_world.get_non_zero_index(transition_at_agent2)
+                    if if_in_block_1 == False and if_in_block_2 == False: #if one of the agent is in block, the whole probabiity is zero
+                        transition_at_agent1, transition_at_agent2 = two_agents_world.get_transition_each_agent_state_action(current_state_agent_1,
+                        current_state_agent_2, action_agent1, action_agent2, self.stateSet, self.actionSet, self.blockSpace, self.wind, self.gridSize)
 
-                    '''
-                    Refer to createSS() for structural interpretation
-                    '''
-                    for index_1 in index_trsit_1:
-                        for index_2 in index_trsit_2:
-                            temp_layer_3[index_1][index_2] = transition_at_agent1[index_1]*transition_at_agent2[index_2]
-                    
-                    temp_layer_2.append(temp_layer_3)
+                        index_trsit_1 = two_agents_world.get_non_zero_index(transition_at_agent1)
+                        index_trsit_2 = two_agents_world.get_non_zero_index(transition_at_agent2)
+
+                        for index_1 in index_trsit_1:
+                            for index_2 in index_trsit_2:
+                                temp_layer_3[index_1][index_2] = transition_at_agent1[index_1]*transition_at_agent2[index_2]
+                    temp_layer_2.append(temp_layer_3.flatten())
                 temp_layer_1.append(temp_layer_2)
             transit_prob.append(temp_layer_1)
         return np.array(transit_prob)
@@ -135,11 +97,6 @@ class two_agents_world:
         transit_p1 = np.zeros(len(ss_mark_1))
         transit_p2 = np.zeros(len(ss_mark_2))
 
-
-        # print("Avail_1 : ", available_action_agent_1)
-
-        # print("Avail_2 : ", available_action_agent_2)
-        # print("Agent2: ", action_agent2)
         if_action_available_1 = (available_action_agent_1 == action_agent1).all(1).any(0)
         if_action_available_2 = (available_action_agent_2 == action_agent2).all(1).any(0)
 
@@ -262,10 +219,13 @@ if __name__ == "__main__":
     start = time.time()
     two_agent_grid = two_agents_world(grid,[0,2],[0,3])
     end = time.time()
+    print("It took ", end - start, " seconds to complete the initialization")
 
-    print(two_agent_grid.transition_probability[0][0][0])
+    print(two_agent_grid.transition_probability.shape)
+    print(two_agent_grid.transition_probability[3][4][23])
 
-#     print("It took ", end - start, " seconds to complete the initialization")
+    
+
     # ss_1,ss_2 = two_agents_world.get_ss_each_agent([4,4],[0,0],grid.stateSpace,grid.blockSpace)
     # draw_square(ss_1,5)
     # draw_square(ss_2,5)
