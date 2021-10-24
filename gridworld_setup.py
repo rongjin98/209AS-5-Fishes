@@ -12,9 +12,9 @@ class GridWorld:
         self.gridSize = 5
         self.blockSpace = np.array([(1,1), (1,2), (3,1), (3,2)])
         self.wall = np.array([[0,4],[1,4],[2,4],[3,4],[4,4]])
-        self.target = np.array([(4,2), (2,2)])
+        self.target = np.array([(2,2), (4,2)])
         self.current_position = np.array(current_position)
-        self.reward = np.array([10, 10, -1]) #Rd, Rs, Rw
+        self.reward = np.array([1, 10, -10]) #Rd, Rs, Rw
         
         self.stateSpace = self.createState
         self.actionSpace = self.createAction
@@ -140,9 +140,9 @@ class GridWorld:
                 reward_map.append(Rw)
             elif if_target == True:
                 if np.array_equal(state_,self.target[0]):
-                    reward_map.append(Rs)
-                else:
                     reward_map.append(Rd)
+                else:
+                    reward_map.append(Rs)
             elif if_block == True:
                 reward_map.append(-99) #trivial value, wont consider block in calculation since transition probability is always 0
             else:

@@ -9,6 +9,9 @@ import time
 
 '''
 Action = [up down left right stay]
+Note: Initialization of Transition Probaility Matrix is currently comment out for computational facilitation.
+      The matrix has been saved as "transition_probaility.npy"
+      If any change of property has been made to gridworld/two_agents_gridworld, Line36 need to be uncommented
 '''
 
 class two_agents_world:
@@ -27,7 +30,10 @@ class two_agents_world:
 
         self.two_actionSpace = self.createAction #25
         self.two_stateSpace = self.createSpace #625
-        self.transition_probability = self.createTransition #25*625*625
+        '''
+        Uncomment the following line if any change made to MDPs
+        '''
+        #self.transition_probability = self.createTransition #25*625*625
         self.reward_map = self.createReward #625
 
     @property
@@ -94,7 +100,6 @@ class two_agents_world:
         Rw = self.reward[2]
 
         reward_map = []
-        index = 0
         for state_ in self.two_stateSpace:
             agent1_ = two_agents_world.index_to_position(state_[0],self.gridSize)
             agent2_ = two_agents_world.index_to_position(state_[1],self.gridSize)
@@ -113,15 +118,15 @@ class two_agents_world:
             else:
                 if if_target_1 == True:
                     if np.array_equal(agent1_,self.target[0]):
-                        sum += Rs
-                    else:
                         sum += Rd
+                    else:
+                        sum += Rs
                 
                 if if_target_2 == True:
                     if np.array_equal(agent2_,self.target[0]):
-                        sum += Rs
-                    else:
                         sum += Rd
+                    else:
+                        sum += Rs
                 
                 if if_wall_1 == True:
                     sum += Rw
@@ -260,6 +265,47 @@ class two_agents_world:
                 temp.append(pos1)
             position_matrix.append(temp)
         return np.array(position_matrix)
+    
+    def index_to_action(index):
+        if index == 0:
+            return(np.array([-1,0]))
+        elif index == 1:
+            return(np.array([1,0]))
+        elif index == 2:
+            return(np.array([0,-1]))
+        elif index == 3:
+            return(np.array([0,1]))
+        elif index == 4:
+            return(np.array([0,0]))
+    
+    def get_available_action(blockspace, actionspace, double_statespace, statespace, gridSize): #statespace = 25*1
+        available_action_set = []
+        for state_ in double_statespace:
+            agent1 = two_agents_world.index_to_position(state_[0],gridSize)
+            agent2 = two_agents_world.index_to_position(state_[1],gridSize)
+            if (blockspace == agent1).all(1).any() or (blockspace == agent1).all(1).any():
+                available_action_set.append([len(actionspace)-1]) #all stay
+            
+            else:
+                temp_set = []
+                index = 0
+                for action_ in actionspace:
+                    action1 = two_agents_world.index_to_action(action_[0])
+                    action2 = two_agents_world.index_to_action(action_[1])
+
+                    next_state1 = agent1 + action1
+                    next_state2 = agent2 + action2
+
+                    if_in_range1 = (statespace == next_state1).all(1).any()
+                    if_in_range2 = (statespace == next_state2).all(1).any()
+                    if_in_block1 = (blockspace == next_state1).all(1).any()
+                    if_in_block2 = (blockspace == next_state2).all(1).any()
+
+                    if if_in_range1 == True and if_in_range2 == True and if_in_block1 == False and if_in_block2 == False:
+                        temp_set.append(index) #append only the index of action
+                    index +=1
+                available_action_set.append(temp_set)
+        return available_action_set
 
          
 
@@ -270,14 +316,21 @@ if __name__ == "__main__":
 
     start = time.time()
     two_agent_grid = two_agents_world(grid,[0,2],[0,3])
+    # np.save('saved_data/stateSpace', two_agent_grid.two_stateSpace)
+    # np.save('saved_actionSpace', two_agent_grid.two_actionSpace)
+    # np.save('saved_transition_probability', two_agent_grid.transition_probability)
+    available_action_set = two_agents_world.get_available_action(grid.blockSpace, two_agent_grid.two_actionSpace, two_agent_grid.two_stateSpace, grid.stateSpace ,grid.gridSize)
+    draw_square(available_action_set,25)
+    np.save('saved_data/Available_action_set', available_action_set)
+
     end = time.time()
     print("It took ", end - start, " seconds to complete the initialization")
 
-    print(two_agent_grid.transition_probability.shape)
-    print(two_agent_grid.transition_probability[3][4][23])
+#     print(two_agent_grid.transition_probability.shape)
+#     print(two_agent_grid.transition_probability[3][4][23])
 
-    print(two_agent_grid.reward_map.shape)
-    print(two_agent_grid.reward_map)
+#     print(two_agent_grid.reward_map.shape)
+#     print(two_agent_grid.reward_map)
 
     
 
