@@ -283,7 +283,9 @@ class two_agents_world:
         for state_ in double_statespace:
             agent1 = two_agents_world.index_to_position(state_[0],gridSize)
             agent2 = two_agents_world.index_to_position(state_[1],gridSize)
-            if (blockspace == agent1).all(1).any() or (blockspace == agent1).all(1).any():
+            if_ini_block1 = (blockspace == agent1).all(1).any()
+            if_ini_block2 = (blockspace == agent2).all(1).any()
+            if if_ini_block1 == True or if_ini_block2 == True:
                 available_action_set.append([len(actionspace)-1]) #all stay
             
             else:
