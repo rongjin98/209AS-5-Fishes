@@ -46,7 +46,7 @@ def check_if_in_target(target_set, agent_pos):
 if __name__ == "__main__":
     grid = GridWorld([0, 2])
     # initial pos of agent1 and agent2
-    two_agents_grid = two_agents_world(grid, [0,0], [0, 4]) #change intial state for different simulation results
+    two_agents_grid = two_agents_world(grid, [0,1], [0,1]) #change intial state for different simulation results
 
     gridSize = grid.gridSize
     agents_gridSize = two_agents_grid.agents_gridSize
@@ -62,6 +62,7 @@ if __name__ == "__main__":
 
     print("Intial positions are: ", agent_1_pos, agent_2_pos)
 
+    i = 0
     while check_if_in_target(target, agent_1_pos) == False or check_if_in_target(target, agent_2_pos) == False :
     # i = 0
     # while i < 5:
@@ -82,4 +83,6 @@ if __name__ == "__main__":
         two_agents_grid = two_agents_world(grid, new_agent_1, new_agent_2)
         print("Agent1 is now: ", new_agent_1, ". Agent2 is now: ", new_agent_2)
 
-        #i += 1
+        i += 1
+        if (i > 15):
+            break
