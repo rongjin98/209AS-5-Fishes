@@ -23,8 +23,8 @@ class two_agents_world:
         self.stateSet = MDP.stateSpace
         self.target = MDP.target
         self.wall = MDP.wall
-        self.agent_one_position = np.array(pos1)
-        self.agent_two_position = np.array(pos2)
+        self.agent_one_position = np.array(pos1).flatten()
+        self.agent_two_position = np.array(pos2).flatten()
         self.wind = MDP.wind
         self.reward = MDP.reward
 
@@ -134,6 +134,8 @@ class two_agents_world:
                 if if_wall_2 == True:
                     sum += Rw
 
+                if np.array_equal(agent1_, agent2_) == True:
+                    sum += -20 #crash punishment
             reward_map.append(sum)
         return np.array(reward_map)
     
@@ -321,75 +323,10 @@ if __name__ == "__main__":
     # np.save('saved_data/stateSpace', two_agent_grid.two_stateSpace)
     # np.save('saved_actionSpace', two_agent_grid.two_actionSpace)
     # np.save('saved_transition_probability', two_agent_grid.transition_probability)
+    #np.save('saved_data/Available_action_set', available_action_set)
     available_action_set = two_agents_world.get_available_action(grid.blockSpace, two_agent_grid.two_actionSpace, two_agent_grid.two_stateSpace, grid.stateSpace ,grid.gridSize)
     draw_square(available_action_set,25)
-    np.save('saved_data/Available_action_set', available_action_set)
-
     end = time.time()
     print("It took ", end - start, " seconds to complete the initialization")
-
-#     print(two_agent_grid.transition_probability.shape)
-#     print(two_agent_grid.transition_probability[3][4][23])
-
-#     print(two_agent_grid.reward_map.shape)
-#     print(two_agent_grid.reward_map)
-
     
-
-    # ss_1,ss_2 = two_agents_world.get_ss_each_agent([4,4],[0,0],grid.stateSpace,grid.blockSpace)
-    # draw_square(ss_1,5)
-    # draw_square(ss_2,5)
-
-    # index1 = two_agents_world.get_non_zero_index(ss_1)
-    # index2 = two_agents_world.get_non_zero_index(ss_2)
-    #draw_square(two_agent_grid.two_actionSpace,two_agent_grid.gridSize)
-    
-    # transit_p1,transit_p2 = two_agents_world.get_transition_each_agent_state_action([0,0],[4,1],np.array([0,1]),np.array([0,1]),grid.stateSpace, grid.actionSpace, grid.blockSpace, grid.wind, grid.gridSize)
-    # print(two_agents_world.get_non_zero_index(transit_p1))
-    # print(two_agents_world.get_non_zero_index(transit_p2))
-    # print(np.sum(transit_p1)+np.sum(transit_p2))
-
-
-    # transit_p2 = transit_p2.reshape((25,1))
-    # transit_p1 = transit_p1.reshape((25,1))
-    # transit_p2 = np.transpose(transit_p2)
-
-    # transit_total = transit_p1 @ transit_p2
-    # print(np.sum(transit_total))
-
-    # print(transit_total.shape)
-
-    # reward_map1 = grid.reward_function()
-    # reward_map1 = reward_map1.reshape((25,1))
-
-    # reward_map2 = grid.reward_function()
-    # reward_map2 = reward_map2.reshape((25,1))
-    # reward_map2 = np.transpose(reward_map2)
-    # print(reward_map2.shape)
-
-    # reward_total = reward_map1 @ reward_map2
-
-    # transit_total = transit_total.flatten()
-    # reward_total = reward_total.flatten()
-    # transit_total = transit_total.reshape((625,1))
-    # reward_total = reward_total.reshape((625,1))
-    # transit_total = np.transpose(transit_total)
-
-    # value = transit_total @ reward_total
-    # value = value.flatten()
-    # print(value)
-
-
-    # draw_square(transit_p1,5)
-    # draw_square(transit_p2,5)
-    # draw_square(two_agent_grid.two_stateSpace,two_agent_grid.agents_gridSize)
-    # pos_state = two_agents_world.index_matrix_to_position_matrix(two_agent_grid.two_stateSpace,two_agent_grid.gridSize)
-    # print(two_agent_grid.two_stateSpace.shape)
-    # pos_state = np.array(make_square(pos_state,two_agent_grid.agents_gridSize))
-    # print(pos_state[24][0][1])
-
-    # print(two_agent_grid.successor_state_given_state.shape)
-    # print(two_agent_grid.successor_state_given_state[0][0])
-    # print(two_agent_grid.transition_probability.shape)
-    # print(two_agent_grid.transition_probability[1][0][0]) #transition probability given "foward" action, given agent1 and agent2 both at [0 0]
     

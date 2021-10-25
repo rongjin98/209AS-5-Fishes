@@ -16,11 +16,7 @@ reward_map = two_agent_grid.reward_map
 count = 0
 index_count = 0
 
-non_block = non_block_state_index(reward_map)
-print(non_block.shape)
-basis_function = Basis_Function(grid.gridSize,grid.blockSpace, grid.target, two_agent_grid.two_stateSpace, non_block)
-print(basis_function.basis_set.shape)
-
+print(two_agent_grid.two_stateSpace[12*25])
 
 
 
