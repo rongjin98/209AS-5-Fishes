@@ -46,7 +46,7 @@ def check_if_in_target(target_set, agent_pos):
 if __name__ == "__main__":
     grid = GridWorld([0, 2])
     # initial pos of agent1 and agent2
-    two_agents_grid = two_agents_world(grid, [0,0], [0, 4])
+    two_agents_grid = two_agents_world(grid, [0,0], [0, 4]) #change intial state for different simulation results
 
     gridSize = grid.gridSize
     agents_gridSize = two_agents_grid.agents_gridSize
