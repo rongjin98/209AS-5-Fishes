@@ -45,15 +45,12 @@ def value_iteration_approximation(Horizon, discount, transition_probability, ava
             max_action = -9999
             for action_index in available_action_set[sub_index]:
                 transit_pr_at_state = transit_pr[action_index][agent1_cs][agent2_cs]
-
-                #next_state_index = successor_state_index(agent1_cs, agent2_cs, actionSpace[action_index], agents_gridSize, gridSize)
                 v_temp = 0
                 index_ = 0
                 for value in transit_pr_at_state:
                     reward_ = 0
                     if value > 0:
                         map_index = np.argwhere(non_block_substate == index_)
-                        #basis = np.reshape(basis_set[next_state_index],(basis_length,1))
                         basis = np.reshape(basis_subset[map_index],(basis_length,1))
                         v_hat = np.matmul(theta,basis).flatten()[0]
                         reward_ = reward_space[index_]
