@@ -1,10 +1,6 @@
 import numpy as np
 import math
 
-import sys, os
-sys.path.insert(1, os.path.join(sys.path[0], '..'))
-from visualizer import draw_square
-
 class Bayes:
     def __init__(self, MDP, initial_bel, action): 
         """
@@ -61,15 +57,12 @@ class Bayes:
         h = Bayes.ceiling_or_flooring(h)
         return h
     
-    @property
-    def init_Bel(self, initial_pos):
-        Bel_0 = np.zeros(len(self.stateSpace))
-        target_index = self.position_to_index(initial_pos,self.gridSize)
-        Bel_0[target_index] = 1
-        return Bel_0
     
     @property
     def get_belief_prior(self):
+        """
+        Get pr(s|*)
+        """
         possible_position_index = []
         for i in range(len(self.bel_0)):
             if self.bel_0[i] != 0:
