@@ -1,5 +1,7 @@
 import numpy as np
 import random
+import sys, os
+sys.path.insert(1, os.path.join(sys.path[0], '..'))
 
 def setup_random_policy(availble_actions,MDP):
     policy_map =[]

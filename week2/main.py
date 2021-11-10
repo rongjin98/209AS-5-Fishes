@@ -1,4 +1,7 @@
 import numpy as np
+import sys, os
+sys.path.insert(1, os.path.join(sys.path[0], '..'))
+
 from gridworld_setup import GridWorld
 from simulator import Simulator
 from visualizer import draw_square
