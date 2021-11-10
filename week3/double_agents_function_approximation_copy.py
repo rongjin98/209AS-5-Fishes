@@ -1,4 +1,7 @@
 import numpy as np
+import sys, os
+sys.path.insert(1, os.path.join(sys.path[0], '..'))
+
 from gridworld_setup import GridWorld
 from double_agents_transition_prob import two_agents_world
 from basis_function import Basis_Function
@@ -45,16 +48,17 @@ def value_iteration_approximation(Horizon, discount, transition_probability, ava
             max_action = -9999
             for action_index in available_action_set[sub_index]:
                 transit_pr_at_state = transit_pr[action_index][agent1_cs][agent2_cs]
+
+                #next_state_index = successor_state_index(agent1_cs, agent2_cs, actionSpace[action_index], agents_gridSize, gridSize)
                 v_temp = 0
                 index_ = 0
                 for value in transit_pr_at_state:
-                    reward_ = 0
                     if value > 0:
                         map_index = np.argwhere(non_block_substate == index_)
+                        #basis = np.reshape(basis_set[next_state_index],(basis_length,1))
                         basis = np.reshape(basis_subset[map_index],(basis_length,1))
                         v_hat = np.matmul(theta,basis).flatten()[0]
-                        reward_ = reward_space[index_]
-                        v_temp += value*(reward_+discount*v_hat)
+                        v_temp += value*(reward_space[index_]+discount*v_hat)
                     index_ += 1
                 
                 if v_temp > v_bar:
@@ -79,6 +83,22 @@ def value_iteration_approximation(Horizon, discount, transition_probability, ava
             return v_set, action_decision, theta
         
     return v_set, action_decision, theta
+
+def successor_state_index(agent1_cs, agent2_cs, action_index, agents_gridSize, gridSize):
+    agent1_position = two_agents_world.index_to_position(agent1_cs,gridSize)
+    agent2_position = two_agents_world.index_to_position(agent2_cs, gridSize)
+
+    action_1 = two_agents_world.index_to_action(action_index[0])
+    action_2 = two_agents_world.index_to_action(action_index[1])
+
+    agent1_new = agent1_position + action_1
+    agent2_new = agent2_position + action_2
+
+    agent1_index = two_agents_world.position_to_index(agent1_new, gridSize)
+    agent2_index = two_agents_world.position_to_index(agent2_new, gridSize)
+
+    index_in_stateSpace = agent1_index*agents_gridSize + agent2_index
+    return index_in_stateSpace
 
 
 def check_convergence(theta, basis_set, v_set):
@@ -119,4 +139,6 @@ if __name__ == "__main__":
     subspace = non_block_state_index(two_agent_grid.reward_map)
     basis_function = Basis_Function(grid.gridSize,grid.blockSpace, grid.target, two_agent_grid.two_stateSpace, subspace)
     value_set, action_set, theta = value_iteration_approximation(50, 0.8, transition_prob, available_action_set, two_agent_grid, basis_function, 0.001)
+    np.save('saved_data/Aprox_Value',value_set)
+    np.save('saved_data/Aprox_Value_Policy',action_set)
     np.save('saved_data/theta', theta)

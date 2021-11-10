@@ -2,7 +2,6 @@ import numpy as np
 import sys, os
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
 
-from double_agents_function_approximation import non_block_state_index, successor_state_index
 from gridworld_setup import GridWorld
 from double_agents_transition_prob import two_agents_world
 from basis_function import Basis_Function

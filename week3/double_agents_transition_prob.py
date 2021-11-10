@@ -1,5 +1,8 @@
 #2-agents transition probability
 import numpy as np
+import sys, os
+sys.path.insert(1, os.path.join(sys.path[0], '..'))
+
 from numpy.core.records import array
 from gridworld_setup import GridWorld
 from numpy.lib.function_base import append

@@ -100,7 +100,7 @@ if __name__ == "__main__":
     stateSpace = grid.stateSpace
     target = grid.target
     block = grid.blockSpace
-    pr_ob_map = obser_pr_map(stateSpace,block,target,3)
+    pr_ob_map = obser_pr_map(stateSpace,block,target,2)
     draw_square(pr_ob_map,5)
     # print("==============Lower Bound===============")
     # draw_square(lower_bound_obs(stateSpace,block,target),5)
