@@ -33,8 +33,10 @@ if __name__ == "__main__":
         simulate = Simulator(grid)
         bayes = Bayes(grid,initial_belief,action_)
         initial_belief = bayes.belief_posterior
+        estimate_state = np.unravel_index(initial_belief.argmax(), (5,5))
+        print("The estimated state is: ", estimate_state)
         draw_square(initial_belief,grid.gridSize)
     
     estimate_state = np.unravel_index(initial_belief.argmax(), (5,5))
-    print(estimate_state)
+    print("The final estimated state is: ", estimate_state)
 
