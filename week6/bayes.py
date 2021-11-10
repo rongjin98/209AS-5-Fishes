@@ -1,6 +1,11 @@
 import numpy as np
 import math
 
+"""
+Right now action is one of the input, 
+what if no action is made, but change to the movement of the target
+"""
+
 class Bayes:
     def __init__(self, MDP, initial_bel, action): 
         """
@@ -70,7 +75,7 @@ class Bayes:
 
         belief_prior= np.zeros(len(self.bel_0))
         for index_ in possible_position_index:
-            tran_pr = self.transition_pr[self.action][index_]
+            tran_pr = self.transition_pr[self.action][index_] 
             belief_prior += tran_pr * self.bel_0[index_]
         return belief_prior
     
